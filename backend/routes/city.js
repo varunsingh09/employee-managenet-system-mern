@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { verifyAdmin } = require("./../middleware/authMiddleware")
+const { verifyHR } = require("./../middleware/authMiddleware")
 const { getCity, saveCity, updateCity, deleteCity } = require("./../controllers/cityController");
 
-// Routes for portal
-router.route("/portal").get(verifyAdmin, getCity);
-router.route("/portal").post(verifyAdmin, saveCity);
-router.route("/portal/:id").put(verifyAdmin, updateCity);
-router.route("/portal/:id").delete(verifyAdmin, deleteCity);
+// Routes for city
+router.route("/").get(verifyHR, getCity);
+router.route("/").post(verifyHR, saveCity);
+router.route("/:id").put(verifyHR, updateCity);
+router.route("/:id").delete(verifyHR, deleteCity);
 
 
 // app.get("/api/city", verifyHR, (req, res) => {

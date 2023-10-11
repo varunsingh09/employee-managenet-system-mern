@@ -5,7 +5,7 @@ const { getSalary, saveSalary, updateSalary, deleteSalary} = require("./../contr
 
 // Routes for salary
 router.route("/").get(verifyHR, getSalary);
-router.route("/").post(verifyHR, saveSalary);
+router.route("/:id").post(verifyHR, saveSalary);
 router.route("/:id").put(verifyHR, updateSalary);
 router.route("/:id").delete(verifyHR, deleteSalary);
 

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const  autoIncrement = require("mongoose-auto-increment");
+const autoIncrement = require("mongoose-auto-increment");
 
 var positionSchema = new mongoose.Schema({
     PositionName: { type: String, required: true },
@@ -11,4 +11,4 @@ positionSchema.plugin(autoIncrement.plugin, {
 });
 
 var Position = mongoose.model("Position", positionSchema);
-module.exports=Position
+module.exports = Position

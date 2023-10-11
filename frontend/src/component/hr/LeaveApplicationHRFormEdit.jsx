@@ -9,13 +9,13 @@ class LeaveApplicationHRForm extends Component {
     // LeaveApplicationHRData: this.props.editData["LeaveApplicationHRName"],
 
     // LeavetypeData: this.props.editData["Leavetype"],
-    FromDateData: this.props.editData["FromDate"].slice(0, 10),
-    ToDateData: this.props.editData["ToDate"].slice(0, 10),
+    FromDateData: this.props.editData["FromDate"]?.slice(0, 10),
+    ToDateData: this.props.editData["ToDate"]?.slice(0, 10),
     ReasonforleaveData: this.props.editData["Reasonforleave"],
     nameData:
-      this.props.editData["employee"][0]["FirstName"] +
+      this.props.editData["employee"]?.[0]?.["FirstName"] +
       " " +
-      this.props.editData["employee"][0]["LastName"]
+      this.props.editData["employee"]?.[0]?.["LastName"]
     // StatusData: this.props.editData["Status"],
 
     // value={this.state.CompanyNameData}

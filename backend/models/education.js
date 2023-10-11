@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const  autoIncrement = require("mongoose-auto-increment");
+const autoIncrement = require("mongoose-auto-increment");
 
 const educationSchema = new mongoose.Schema({
     SchoolUniversity: { type: String, required: true },
@@ -14,4 +14,4 @@ educationSchema.plugin(autoIncrement.plugin, {
 
 const Education = mongoose.model("Education", educationSchema);
 
-module.exports=Education;
+module.exports = Education;

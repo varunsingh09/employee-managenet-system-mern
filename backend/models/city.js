@@ -6,10 +6,10 @@ const citySchema = new mongoose.Schema({
     state: [{ type: mongoose.Schema.Types.ObjectId, ref: "State" }]
 });
 citySchema.plugin(autoIncrement.plugin, {
-    model: "Company",
-    field: "CompanyID"
+    model: "City",
+    field: "CityID"
 });
 
 const City = mongoose.model("City", citySchema);
-module.exports = City
+module.exports = { City, citySchema }
 

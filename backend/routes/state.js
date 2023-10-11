@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { verifyAdmin } = require("./../middleware/authMiddleware")
+const { verifyHR } = require("./../middleware/authMiddleware")
 const { getState, saveState, updateState, deleteState } = require("./../controllers/stateController");
 
-// Routes for portal
-router.route("/portal").get(verifyAdmin, getState);
-router.route("/portal").post(verifyAdmin, saveState);
-router.route("/portal/:id").put(verifyAdmin, updateState);
-router.route("/portal/:id").delete(verifyAdmin, deleteState);
+// Routes for state
+router.route("/").get(verifyHR, getState);
+router.route("/").post(verifyHR, saveState);
+router.route("/:id").put(verifyHR, updateState);
+router.route("/:id").delete(verifyHR, deleteState);
 
 
 

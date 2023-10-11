@@ -1,126 +1,124 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Employee = require("./../models/employee");
 const { EmployeeValidationUpdate, EmployeeValidation } = require("./../schema/");
 
 
 const getEmployee = asyncHandler(async (req, res) => {
-    // {path: 'projects', populate: {path: 'portals'}}
-    Employee.find()
-        // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
-        .populate({
-            path: "role position department"
-            // populate: {
-            //   path: "state",
-            //   model: "State",
-            //   populate: {
-            //     path: "country",
-            //     model: "Country"
-            //   }
-            // }
-        })
-        .select("-salary -education -familyInfo -workexperience -password")
-        .exec(function (err, employee) {
-            res.send(employee);
-        });
+    try {
+        // {path: 'projects', populate: {path: 'portals'}}
+        const employee = await  Employee.find()
+            // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
+            .populate({
+                path: "role position department"
+                // populate: {
+                //   path: "state",
+                //   model: "State",
+                //   populate: {
+                //     path: "country",
+                //     model: "Country"
+                //   }
+                // }
+            })
+            .select("-salary -education -familyInfo -workexperience -password");
+            console.log('employee',employee)
+        res.status(200).send(employee);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 });
 
 const saveEmployee = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, EmployeeValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = EmployeeValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newEmployee;
 
             newEmployee = {
-                email: req.body.email,
-                password: req.body.password,
+                Email: req.body.Email,
+                Password: req.body.Password,
                 role: req.body.RoleID,
-                account: req.body.account,
-                gender: req.body.gender,
+                Account: req.body.Account,
+                Gender: req.body.Gender,
                 FirstName: req.body.FirstName,
-                middlename: req.body.middlename,
-                lastname: req.body.lastname,
-                dob: req.body.dob,
-                contactno: req.body.contactno,
-                employeecode: req.body.employeecode,
+                MiddleName: req.body.MiddleName,
+                LastName: req.body.LastName,
+                DOB: req.body.DOB,
+                ContactNo: req.body.ContactNo,
+                EmployeeCode: req.body.EmployeeCode,
                 department: req.body.DepartmentID,
                 position: req.body.PositionID,
-                dateofjoining: req.body.dateofjoining,
-                terminatedate: req.body.terminatedate
+                DateOfJoining: req.body.DateOfJoining,
+                TerminateDate: req.body.TerminateDate
             };
 
-            Employee.create(newEmployee, function (err, employee) {
-                if (err) {
-                    console.log(err);
-                    res.send("error");
-                } else {
-                    res.send(employee);
-
-                    console.log("new employee Saved");
-                }
-            });
+            const employee = await Employee.create(newEmployee);
+            if (employee) {
+                res.status(201).send(employee);
+                console.log("new employee Saved");
+            }
             console.log(req.body);
         }
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const updateEmployee = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, EmployeeValidationUpdate, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = EmployeeValidationUpdate.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newEmployee;
             newEmployee = {
-                email: req.body.email,
-                // password: req.body.password,
-                account: req.body.account,
+                Email: req.body.Email,
+               // Password: req.body.Password,
                 role: req.body.RoleID,
-                gender: req.body.gender,
+                Account: req.body.Account,
+                Gender: req.body.Gender,
                 FirstName: req.body.FirstName,
-                middlename: req.body.middlename,
-                lastname: req.body.lastname,
-                dob: req.body.dob,
-                contactno: req.body.contactno,
-                employeecode: req.body.employeecode,
+                MiddleName: req.body.MiddleName,
+                LastName: req.body.LastName,
+                DOB: req.body.DOB,
+                ContactNo: req.body.ContactNo,
+                EmployeeCode: req.body.EmployeeCode,
                 department: req.body.DepartmentID,
                 position: req.body.PositionID,
-                dateofjoining: req.body.dateofjoining,
-                terminatedate: req.body.terminatedate
+                DateOfJoining: req.body.DateOfJoining,
+                TerminateDate: req.body.TerminateDate
             };
+            const employee = await Employee.findByIdAndUpdate(req.params.id, newEmployee)
+            if (employee) {
 
-            Employee.findByIdAndUpdate(req.params.id, newEmployee, function (
-                err,
-                employee
-            ) {
-                if (err) {
-                    res.send("error");
-                } else {
-                    res.send(newEmployee);
-                }
-            });
+                res.status(201).send(newEmployee);
+            }
         }
 
         console.log("put");
         console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const deleteEmployee = asyncHandler(async (req, res) => {
-    // Employee.findByIdAndRemove({ _id: req.params.id }, function (err, employee) {
-    //   if (!err) {
-    //     console.log(" state deleted");
-    //     res.send(employee);
-    //   } else {
-    //     console.log(err);
-    //     res.send("error");
-    //   }
-    // });
-    res.send("error");
-    console.log("delete");
-    console.log(req.params.id);
+    try {
+        const employee = await Employee.findByIdAndRemove({ _id: req.params.id })
+        if (employee) {
+            console.log(" state deleted");
+            res.send(employee);
+        }
+        res.send("error");
+        console.log("delete");
+        console.log(req.params.id);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 module.exports = {

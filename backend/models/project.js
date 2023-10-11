@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
-const  autoIncrement = require("mongoose-auto-increment");
+const autoIncrement = require("mongoose-auto-increment");
 
-var projectSchema = new mongoose.Schema({
+const projectSchema = new mongoose.Schema({
     CreatedBy: { type: String },
     CreatedDate: { type: Date, default: Date.now },
-    deleted: { type: Boolean },
+    Deleted: { type: Boolean },
     EmpFullName: { type: String },
     EstimatedCost: { type: Number },
     EstimatedTime: { type: Number },
@@ -24,8 +24,8 @@ var projectSchema = new mongoose.Schema({
 });
 projectSchema.plugin(autoIncrement.plugin, {
     model: "Project",
-    field: "ID"
+    field: "ProjectID"
 });
 
 const Project = mongoose.model("Project", projectSchema);
-module.exports=Project
+module.exports = Project

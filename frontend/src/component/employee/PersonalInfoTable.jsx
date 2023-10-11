@@ -154,7 +154,7 @@ class PersonalInfoTable extends Component {
           ContactNo: data["ContactNo"] || "Not Avaiable",
           Email: data["Email"] || "Not Avaiable",
           PANcardNo: data["PANcardNo"] || "Not Avaiable",
-          DOB: data["DOB"].slice(0, 10) || "Not Avaiable",
+          DOB: data["DOB"]?.slice(0, 10) || "Not Avaiable",
           Hobbies: data["Hobbies"] || "Not Avaiable",
           PresentAddress: data["PresentAddress"] || "Not Avaiable",
 

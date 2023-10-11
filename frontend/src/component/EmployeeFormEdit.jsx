@@ -16,12 +16,12 @@ class EmployeeFormEdit extends Component {
     FirstNameData: this.props.editData["FirstName"],
     MiddleNameData: this.props.editData["MiddleName"],
     LastNameData: this.props.editData["LastName"],
-    DOBData: this.props.editData["DOB"].slice(0, 10),
+    DOBData: this.props.editData["DOB"]?.slice(0, 10),
     ContactNoData: this.props.editData["ContactNo"],
     EmployeeCodeData: this.props.editData["EmployeeCode"],
 
-    DateOfJoiningData: this.props.editData["DateOfJoining"].slice(0, 10),
-    TerminateDateData: this.props.editData["TerminateDate"].slice(0, 10)
+    DateOfJoiningData: this.props.editData["DateOfJoining"]?.slice(0, 10),
+    TerminateDateData: this.props.editData["TerminateDate"]?.slice(0, 10)
 
     // value={this.state.EmployeeTitleData}
     // onChange={value => this.onEmployeeTitleDataChange(value)}
@@ -198,9 +198,9 @@ class EmployeeFormEdit extends Component {
                   {this.state.roleData.map((data, index) => (
                     <option
                       key={index}
-                      value={data["_id"]}
+                      value={data?.["_id"]}
                       selected={
-                        this.props.editData["role"][0]["_id"] == data["_id"]
+                        this.props.editData["role"][0]?.["_id"] == data?.["_id"]
                       }
                     >
                       {data["RoleName"]}
@@ -334,10 +334,10 @@ class EmployeeFormEdit extends Component {
                   {this.state.departmentData.map((data, index) => (
                     <option
                       key={index}
-                      value={data["_id"]}
+                      value={data?.["_id"]}
                       selected={
-                        this.props.editData["department"][0]["_id"] ==
-                        data["_id"]
+                        this.props.editData["department"][0]?.["_id"] ==
+                        data?.["_id"]
                       }
                     >
                       {data["DepartmentName"]}
@@ -359,9 +359,9 @@ class EmployeeFormEdit extends Component {
                   {this.state.positionData.map((data, index) => (
                     <option
                       key={index}
-                      value={data["_id"]}
+                      value={data?.["_id"]}
                       selected={
-                        this.props.editData["position"][0]["_id"] == data["_id"]
+                        this.props.editData["position"][0]?.["_id"] == data?.["_id"]
                       }
                     >
                       {data["PositionName"]}

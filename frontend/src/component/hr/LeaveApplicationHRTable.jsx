@@ -118,14 +118,14 @@ class LeaveApplicationHRTable extends Component {
         this.leaveApplicationHRObj.map(data => {
           let temp = {
             data,
-            EmployeeCode: data["employee"][0]["EmployeeCode"],
+            EmployeeCode: data["employee"]?.[0]?.["EmployeeCode"],
             Name:
-              data["employee"][0]["FirstName"] +
+              data["employee"]?.[0]?.["FirstName"] +
               " " +
-              data["employee"][0]["LastName"],
+              data["employee"]?.[0]?.["LastName"],
             Leavetype: data["Leavetype"],
-            FromDate: data["FromDate"].slice(0, 10),
-            ToDate: data["ToDate"].slice(0, 10),
+            FromDate: data["FromDate"]?.slice(0, 10),
+            ToDate: data["ToDate"]?.slice(0, 10),
             Reasonforleave: data["Reasonforleave"],
             Status: this.status(data["Status"])
           };
@@ -168,8 +168,8 @@ class LeaveApplicationHRTable extends Component {
         icon={faTrash}
         onClick={() =>
           this.onLeaveApplicationHRDelete(
-            params.data.data["employee"][0]["_id"],
-            params.data.data["_id"]
+            params.data.data["employee"]?.[0]?.["_id"],
+            params.data.data?.["_id"]
           )
         }
       />

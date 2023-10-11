@@ -26,15 +26,19 @@ class RoleTable extends Component {
     loading: true,
 
     columnDefs: [
-   
+
       {
         headerName: "Company Name",
         field: "CompanyName",
         sortable: true,
         // width: 150,
         // filter: true ,
+        // cellRenderer:this.ageCellRendererFunc,
+        cellRendererFramework: function (params) {
+          return params?.data?.company?.[0]?.CompanyName;
+        },
       },
-   
+
       {
         headerName: "Role",
         field: "RoleName",
@@ -42,8 +46,8 @@ class RoleTable extends Component {
         // width: 150,
         // filter: true ,
       },
-      
-      
+
+
 
       {
         headerName: "",
@@ -67,7 +71,7 @@ class RoleTable extends Component {
       filter: "agTextColumnFilter"
       // filter: true ,
     },
-    getRowHeight: function(params) {
+    getRowHeight: function (params) {
       return 35;
     }
 
@@ -85,17 +89,17 @@ class RoleTable extends Component {
       .then(response => {
         this.roleObj = response.data;
 
-        console.log("response", response.data);
+        //console.log("response", response.data);
         this.setState({ roleData: response.data });
         this.setState({ loading: false });
         this.rowDataT = [];
+        this.roleObj.company?.map(data => {
 
-        this.roleObj.map(data => {
           let temp = {
             data,
-            CompanyName: data["company"][0]["CompanyName"],
-            RoleName:data["RoleName"]
-            
+            CompanyName: data?.CompanyName,
+            RoleName: this.roleObj?.RoleName
+
           };
 
           this.rowDataT.push(temp);
@@ -108,7 +112,7 @@ class RoleTable extends Component {
   };
 
   onRoleDelete = e => {
-    console.log(e);
+    //console.log(e);
     if (window.confirm("Are you sure to delete this record ? ") == true) {
       axios
         .delete("http://localhost:4000/api/role/" + e, {
@@ -122,9 +126,10 @@ class RoleTable extends Component {
         .catch(err => {
           console.log(err);
           console.log(err.response);
-          if(err.response.status==403){
-            window.alert(err.response.data) ;}
-       
+          if (err.response.status == 403) {
+            window.alert(err.response.data);
+          }
+
         });
     }
   };
@@ -133,7 +138,7 @@ class RoleTable extends Component {
     this.loadRoleData();
   }
   renderButton(params) {
-    console.log(params);
+    // console.log(params);
     return (
       <FontAwesomeIcon
         icon={faTrash}
@@ -144,7 +149,7 @@ class RoleTable extends Component {
     );
   }
   renderEditButton(params) {
-    console.log(params);
+    //  console.log(params);
     return (
       <FontAwesomeIcon
         icon={faEdit}
@@ -154,6 +159,7 @@ class RoleTable extends Component {
   }
 
   render() {
+    console.log('this.state.rowData', this.state.roleData)
     return (
       <div id="table-outer-div-scroll">
         <h2 id="role-title">Role Details</h2>
@@ -171,18 +177,18 @@ class RoleTable extends Component {
           <div
             id="table-div"
             className="ag-theme-balham"
-            //   style={
-            //     {
-            //     height: "500px",
-            //     width: "100%"
-            //   }
-            // }
+          //   style={
+          //     {
+          //     height: "500px",
+          //     width: "100%"
+          //   }
+          // }
           >
             <AgGridReact
               columnDefs={this.state.columnDefs}
               defaultColDef={this.state.defaultColDef}
               columnTypes={this.state.columnTypes}
-              rowData={this.state.rowData}
+              rowData={this.state.roleData}
               // floatingFilter={true}
               // onGridReady={this.onGridReady}
               pagination={true}

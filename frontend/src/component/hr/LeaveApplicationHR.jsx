@@ -26,20 +26,20 @@ class LeaveApplicationHR extends Component {
               editData={this.state.editData}
             />
           ) : (
-              <LeaveApplicationHRTable
-                onAddLeaveApplicationHR={this.handleAddLeaveApplicationHR}
-                onEditLeaveApplicationHR={this.handleEditLeaveApplicationHR}
-                data={this.props.data}
-              />
-            )
+            <LeaveApplicationHRTable
+              onAddLeaveApplicationHR={this.handleAddLeaveApplicationHR}
+              onEditLeaveApplicationHR={this.handleEditLeaveApplicationHR}
+              data={this.props.data}
+            />
+          )
         ) : (
-            <div></div>
-            //   <LeaveApplicationHRForm
-            //     onLeaveApplicationHRSubmit={this.handleLeaveApplicationHRSubmit}
-            //     onFormClose={this.handleFormClose}
-            //     onGenderChange={this.handleAddFormGenderChange}
-            //   />
-          )}
+          <div></div>
+          //   <LeaveApplicationHRForm
+          //     onLeaveApplicationHRSubmit={this.handleLeaveApplicationHRSubmit}
+          //     onFormClose={this.handleFormClose}
+          //     onGenderChange={this.handleAddFormGenderChange}
+          //   />
+        )}
       </React.Fragment>
     );
   }
@@ -100,11 +100,11 @@ class LeaveApplicationHR extends Component {
   // };
   handleLeaveApplicationHREditUpdate = (info, newInfo) => {
     newInfo.preventDefault();
-    console.log("zero data", newInfo.target[0].value);
+    console.log(info, "zero data", newInfo.target[0].value);
     let body = {
-      Status: newInfo.target[4].value,
+      Status: newInfo.target[4].value
     };
-    console.log("update", body);
+
     axios
       .put(
         "http://localhost:4000/api/leave-application-hr/" + info["_id"],

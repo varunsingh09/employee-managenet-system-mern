@@ -192,27 +192,28 @@ class AdminEmployeeTable extends Component {
         }
       })
       .then(response => {
-        this.employeeObj = response.data;
-        console.log("response", response.data);
+        this.employeeObj = response?.data;
+        console.log("response", response?.data);
         this.setState({ employeeData: response.data });
         this.setState({ loading: false });
         this.rowDataT = [];
+
         this.employeeObj.map(data => {
           let temp = {
             data,
             Email: data["Email"],
             Password: data["Password"],
             Account: data["Account"] == 1 ? "Admin" : (data["Account"] == 2 ? "HR" : (data["Account"] == 3 ? "Employee" : "")),
-            RoleName: data["role"][0]["RoleName"],
+            RoleName: data["role"]?.[0]?.["RoleName"],
             FirstName: data["FirstName"],
             MiddleName: data["MiddleName"],
             LastName: data["LastName"],
-            DOB: data["DOB"].slice(0, 10),
+            DOB: data["DOB"]?.slice(0, 10),
             ContactNo: data["ContactNo"],
             EmployeeCode: data["EmployeeCode"],
-            DepartmentName: data["department"][0]["DepartmentName"],
-            PositionName: data["position"][0]["PositionName"],
-            DateOfJoining: data["DateOfJoining"].slice(0, 10)
+            DepartmentName: data["department"]?.[0]?.["DepartmentName"],
+            PositionName: data["position"]?.[0]?.["PositionName"],
+            DateOfJoining: data["DateOfJoining"]?.slice(0, 10)
           };
 
           this.rowDataT.push(temp);

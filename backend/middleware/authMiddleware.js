@@ -8,7 +8,7 @@ const verifyAdmin = asyncHandler(async (req, res, next) => {
     if (typeof Header !== "undefined") {
         // decodedData = jwt.decode(req.headers['authorization']);
         // if(decodedData.account)
-        jwt.verify(Header, jwtKey, (err, authData) => {
+        jwt.verify(Header, process.env.jwtKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {
@@ -33,7 +33,7 @@ const verifyAdminHR = asyncHandler(async (req, res, next) => {
     if (typeof Header !== "undefined") {
         // decodedData = jwt.decode(req.headers['authorization']);
         // if(decodedData.account)
-        jwt.verify(Header, jwtKey, (err, authData) => {
+        jwt.verify(Header, process.env.jwtKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {
@@ -58,7 +58,7 @@ const verifyHR = asyncHandler(async (req, res, next) => {
     if (typeof Header !== "undefined") {
         // decodedData = jwt.decode(req.headers['authorization']);
         // if(decodedData.account)
-        jwt.verify(Header, jwtKey, (err, authData) => {
+        jwt.verify(Header, process.env.jwtKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {
@@ -83,7 +83,7 @@ const verifyHREmployee = asyncHandler(async (req, res, next) => {
     if (typeof Header !== "undefined") {
         // decodedData = jwt.decode(req.headers['authorization']);
         // if(decodedData.account)
-        jwt.verify(Header, jwtKey, (err, authData) => {
+        jwt.verify(Header, process.env.jwtKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {
@@ -120,7 +120,7 @@ const verifyEmployee = asyncHandler(async (req, res, next) => {
     if (typeof Header !== "undefined") {
         // decodedData = jwt.decode(req.headers['authorization']);
         // if(decodedData.account)
-        jwt.verify(Header, jwtKey, (err, authData) => {
+        jwt.verify(Header, process.env.jwtKey, (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             } else {

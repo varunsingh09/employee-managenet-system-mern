@@ -1,26 +1,26 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Portal = require("./../models/portal");
 const Project = require("./../models/project");
 const { PortalValidation, ProjectValidation } = require("./../schema/");
 
 const getPortal = asyncHandler(async (req, res) => {
-    Portal.find()
-        .populate({ path: "projects" })
-        .exec(function (err, portalData) {
-            if (err) {
-                res.send("err");
-                console.log(err);
-            }
-            res.send(portalData);
-        });
+    try {
+        const portalData = await  Portal.find()
+   // .populate({ path: "projects" })
+        res.status(200).send(portalData);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 });
 
 const savePortal = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, PortalValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = PortalValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newPortal;
             newPortal = {
@@ -28,87 +28,76 @@ const savePortal = asyncHandler(async (req, res) => {
                 Status: req.body.Status
             };
 
-            Portal.create(newPortal, function (err, portalData) {
-                if (err) {
-                    console.log(err);
-                    res.send("error");
-                } else {
-                    res.send(portalData);
-                    console.log("new Portal Saved");
-                }
-            });
+            const portalData = await Portal.create(newPortal);
+            console.log("new Portal Saved");
             console.log(req.body);
+            res.status(201).send(portalData);
         }
-    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 });
 
 const updatePortal = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, PortalValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = PortalValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let updatePortal;
             updatePortal = {
                 PortalName: req.body.PortalName,
                 Status: req.body.Status
             };
-            Portal.findByIdAndUpdate(req.body._id, updatePortal, function (
-                err,
-                Portal
-            ) {
-                if (err) {
-                    res.send("error");
-                } else {
-                    res.send(updatePortal);
-                }
-            });
+            const portal = await Portal.findByIdAndUpdate(req.body._id, updatePortal);
+            if (portal) {
+                console.log("put");
+                console.log(req.body);
+                res.status(201).send(updatePortal);
+            }
         }
-
-        console.log("put");
-        console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const deletePortal = asyncHandler(async (req, res) => {
-    Portal.findByIdAndRemove({ _id: req.params.id }, function (err, portal) {
-        if (!err) {
+    try {
+        const portal = await Portal.findByIdAndRemove({ _id: req.params.id });
+        if (portal) {
             console.log("portal deleted");
             res.send(portal);
-            Project.deleteMany({ portals: { _id: portal._id } }, function (err) {
-                if (err) {
-                    res.send("error");
-                    console.log(err);
-                }
-            });
+            const deleted = await Project.deleteMany({ portals: { _id: portal._id } });
             console.log("new Portal Saved");
-        } else {
-            console.log("error");
-            res.send("err");
+            console.log("delete");
+
         }
-    });
-    console.log("delete");
-    console.log(req.params.id);
+        console.log(req.params.id);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const getProjectBid = asyncHandler(async (req, res) => {
-    Project.find()
-        .populate("portals")
-        .exec(function (err, project) {
-            if (err) {
-                console.log(err);
-                res.send("err");
-            } else {
-                res.send(project);
-            }
-        });
+    try {
+        const project = await Project.find()
+            .populate("portals");
+
+        res.status(200).send(project);
+
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const saveProjectBid = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, ProjectValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = ProjectValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let project;
             project = {
@@ -122,25 +111,24 @@ const saveProjectBid = asyncHandler(async (req, res) => {
                 Status: req.body.Status,
                 Remark: req.body.Remark
             };
-            Project.create(project, function (err, project) {
-                if (err) {
-                    console.log(err);
-                    res.send("error");
-                } else {
-                    res.send(project);
-                    console.log("new project Saved");
-                }
-            });
-            console.log(req.body);
+            await Project.create(project);
+            res.status(201).send(project);
+            console.log("new project Saved");
         }
-    });
+        console.log(req.body);
+
+
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const updateProjectBid = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, ProjectValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = ProjectValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let updateProject;
             updateProject = {
@@ -155,35 +143,26 @@ const updateProjectBid = asyncHandler(async (req, res) => {
                 Remark: req.body.Remark
             };
 
-            Project.findByIdAndUpdate(req.params.id, updateProject, function (
-                err,
-                Project
-            ) {
-                if (err) {
-                    res.send("error");
-                } else {
-                    res.send(updateProject);
-                }
-            });
+            await Project.findByIdAndUpdate(req.params.id, updateProject)
+            res.status(201).send(updateProject);
+            console.log("put");
+            console.log(req.body);
         }
-
-        console.log("put");
-        console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const deleteProjectBid = asyncHandler(async (req, res) => {
-    Project.findByIdAndRemove({ _id: req.params.id }, function (err, project) {
-        if (err) {
-            console.log("error");
-            res.send("err");
-        } else {
-            console.log("project deleted");
-            res.send(project);
-        }
-    });
-    console.log("delete");
-    console.log(req.params.id);
+    try {
+        const project = Project.findByIdAndRemove({ _id: req.params.id });
+        console.log("project deleted");
+        res.status(201).send(project);
+        console.log("delete");
+        console.log(req.params.id);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 

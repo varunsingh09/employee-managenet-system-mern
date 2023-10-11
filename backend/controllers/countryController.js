@@ -1,21 +1,25 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Country = require("./../models/country");
-const { CountryValidation } = require("./../schema/");
+const { CountryValidation } = require("./../schema");
 
 const getCountry = asyncHandler(async (req, res) => {
-    Country.find()
-        .populate({ path: "states", populate: { path: "cities" } })
-        .exec(function (err, country) {
-            res.send(country);
-        });
+    try {
+        const country = await Country.find()
+            .populate({ path: "states", populate: { path: "cities" } });
+        res.status(200).send(country);
+    } catch (err) {
+        console.log('err', err)
+        res.status(500).send(err);
+    }
 });
 
 const saveCountry = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, CountryValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = CountryValidation.validate(req.body);
+
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newCountry;
 
@@ -23,98 +27,70 @@ const saveCountry = asyncHandler(async (req, res) => {
                 CountryName: req.body.CountryName
             };
 
-            Country.create(newCountry, function (err, country) {
-                if (err) {
-                    console.log(err);
-                    res.send("error");
-                } else {
-                    res.send(country);
-                    console.log("new country Saved");
-                }
-            });
+            const country = Country.create(newCountry);
+            res.status(201).send(country);
+            console.log("new country Saved");
+
             console.log(req.body);
         }
-    });
+    } catch (err) {
+        console.log("err....", err);
+        res.status(500).send(err)
+    }
 });
 
 const updateCountry = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, CountryValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = CountryValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newCountry;
 
             newCountry = {
                 CountryName: req.body.CountryName
             };
-            Country.findByIdAndUpdate(req.params.id, newCountry, function (
-                err,
-                country
-            ) {
-                if (err) {
-                    res.send("error");
-                } else {
-                    res.send(newCountry);
-                }
-            });
+            Country.findByIdAndUpdate(req.params.id, newCountry);
+            res.send(newCountry);
+
         }
 
         console.log("put");
         console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+
+    }
 });
 
 const deleteCountry = asyncHandler(async (req, res) => {
-    Country.findById(req.params.id, function (err, foundCountry) {
-        if (err) {
-            res.send(err);
+    try {
+        const foundCountry = await Country.findById(req.params.id);
+
+        console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", foundCountry);
+        if (!foundCountry.states.length == 0) {
+            res
+                .status(403)
+                .send(
+                    "First Delete All The states in this country before deleting this country"
+                );
         } else {
-            console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", foundCountry);
-            if (!foundCountry.states.length == 0) {
-                res
-                    .status(403)
-                    .send(
-                        "First Delete All The states in this country before deleting this country"
-                    );
-            } else {
-                Country.findByIdAndRemove({ _id: req.params.id }, function (
-                    err,
-                    country
-                ) {
-                    if (!err) {
-                        State.deleteMany({ country: { _id: req.params.id } }, function (
-                            err
-                        ) {
-                            if (err) {
-                                console.log(err);
-                                res.send("error");
-                            } else {
-                                City.deleteMany(
-                                    { state: { country: { _id: req.params.id } } },
-                                    function (err) {
-                                        if (err) {
-                                            console.log(err);
-                                            res.send("error");
-                                        } else {
-                                            console.log(" Country deleted");
-                                            res.send(country);
-                                        }
-                                    }
-                                );
-                            }
-                        });
-                    } else {
-                        console.log(err);
-                        res.send("error");
-                    }
-                });
+            const country = await Country.findByIdAndRemove({ _id: req.params.id });
+            if (country) {
+                const state = await State.deleteMany({ country: { _id: req.params.id } });
+                if (state) {
+                    City.deleteMany({ state: { country: { _id: req.params.id } } });
+                    console.log(" Country deleted");
+                    res.status(201).send(country);
+                }
             }
         }
-    });
-
-    console.log("delete");
-    console.log(req.params.id);
+        console.log("delete");
+        console.log(req.params.id);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 

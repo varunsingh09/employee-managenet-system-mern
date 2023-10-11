@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
-const  autoIncrement = require("mongoose-auto-increment");
+const autoIncrement = require("mongoose-auto-increment");
 
-var workexperienceSchema = new mongoose.Schema({
+const workExperienceSchema = new mongoose.Schema({
     CompanyName: { type: String, required: true },
     Designation: { type: String, required: true },
     FromDate: { type: Date, required: true },
     ToDate: { type: Date, required: true }
 });
-workexperienceSchema.plugin(autoIncrement.plugin, {
-    model: "workexperience",
-    field: "workexperienceID"
+workExperienceSchema.plugin(autoIncrement.plugin, {
+    model: "WorkExperience",
+    field: "WorkExperienceID"
 });
 
-const Workexperience = mongoose.model("workexperience", workexperienceSchema);
-module.exports=Workexperience;
+const WorkExperience = mongoose.model("WorkExperience", workExperienceSchema);
+
+module.exports = WorkExperience;

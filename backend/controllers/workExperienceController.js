@@ -1,5 +1,4 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Employee = require("./../models/employee");
 const WorkExperience = require("./../models/workexperience");
 const { WorkexperienceValidation } = require("./../schema/");
@@ -7,82 +6,76 @@ const { WorkexperienceValidation } = require("./../schema/");
 
 
 const getWorkExperience = asyncHandler(async (req, res) => {
-    console.log(req.params.id);
-    // var employee = {};
-    // {path: 'projects', populate: {path: 'portals'}}
-    Employee.findById(req.params.id)
-        // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
-        .populate({
-            path: "workexperience"
-            // populate: {
-            //   path: "state",
-            //   model: "State",
-            //   populate: {
-            //     path: "country",
-            //     model: "Country"
-            //   }
-            // }
-        })
-        // .select(" -role -position -department")
-        .select("FirstName lastname middlename")
-        .exec(function (err, employee) {
-            res.send(employee);
-        });
+    try {
+        console.log(req.params.id);
+        // var employee = {};
+        // {path: 'projects', populate: {path: 'portals'}}
+        const employee = await Employee.findById(req.params.id)
+            // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
+            .populate({
+                path: "workExperience"
+                // populate: {
+                //   path: "state",
+                //   model: "State",
+                //   populate: {
+                //     path: "country",
+                //     model: "Country"
+                //   }
+                // }
+            })
+            // .select(" -role -position -department")
+            .select("FirstName LastName MiddleName");
+            console.log('employee',employee)
+        res.status(200).send(employee);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 });
 
 const saveWorkExperience = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, WorkexperienceValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = WorkexperienceValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
-            Employee.findById(req.params.id, function (err, employee) {
-                if (err) {
-                    console.log(err);
-                    res.send("err");
-                } else {
-                    let newworkexperience;
+            const employee = await Employee.findById(req.params.id);
+            if (employee) {
+                let newworkexperience;
 
-                    newworkexperience = {
-                        CompanyName: req.body.CompanyName,
-                        Designation: req.body.Designation,
-                        FromDate: req.body.FromDate,
-                        ToDate: req.body.ToDate
-                    };
+                newworkexperience = {
+                    CompanyName: req.body.CompanyName,
+                    Designation: req.body.Designation,
+                    FromDate: req.body.FromDate,
+                    ToDate: req.body.ToDate
+                };
 
-                    WorkExperience.create(newworkexperience, function (
-                        err,
-                        workexperience
-                    ) {
-                        if (err) {
-                            console.log(err);
-                            res.send("error");
-                        } else {
-                            employee.workexperience.push(workexperience);
-                            employee.save(function (err, data) {
-                                if (err) {
-                                    console.log(err);
-                                    res.send("err");
-                                } else {
-                                    console.log(data);
-                                    res.send(workexperience);
-                                }
-                            });
-                            console.log("new workexperience Saved");
-                        }
-                    });
-                    console.log(req.body);
+                const workexperience = await WorkExperience.create(newworkexperience)
+                if (workexperience) {
+                    employee.workexperience.push(workexperience);
+                    const empSave = await employee.save();
+                    if (empSave) {
+                        console.log(empSave);
+                        res.status(201).send(workexperience);
+                    }
                 }
-            });
+                console.log("new workexperience Saved");
+            }
         }
-    });
+        console.log(req.body);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const updateWorkExperience = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, WorkexperienceValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = WorkexperienceValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newworkexperience;
 
@@ -93,52 +86,50 @@ const updateWorkExperience = asyncHandler(async (req, res) => {
                 ToDate: req.body.ToDate
             };
 
-            WorkExperience.findByIdAndUpdate(
+            const workexperience = await WorkExperience.findByIdAndUpdate(
                 req.params.id,
-                newworkexperience,
-                function (err, workexperience) {
-                    if (err) {
-                        res.send("error");
-                    } else {
-                        res.send(newworkexperience);
-                    }
-                }
-            );
+                newworkexperience)
+            if (workexperience) {
+                res.status(201).send(newworkexperience);
+            }
         }
+
         console.log("put");
         console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+
 });
 
 const deleteWorkExperience = asyncHandler(async (req, res) => {
-    Employee.findById({ _id: req.params.id }, function (err, employee) {
-        if (err) {
-            res.send("error");
-            console.log(err);
-        } else {
-            WorkExperience.findByIdAndRemove({ _id: req.params.id2 }, function (
-                err,
-                workexperience
-            ) {
-                if (!err) {
-                    console.log("workexperience deleted");
-                    Employee.update(
-                        { _id: req.params.id },
-                        { $pull: { workexperience: req.params.id2 } },
-                        function (err, numberAffected) {
-                            console.log(numberAffected);
-                            res.send(workexperience);
-                        }
-                    );
-                } else {
-                    console.log(err);
-                    res.send("error");
+    try {
+        const employee = await Employee.findById({ _id: req.params.id });
+        if (employee) {
+
+            const workexperience = await WorkExperience.findByIdAndRemove({ _id: req.params.id2 })
+            if (workexperience) {
+                console.log("workexperience deleted");
+                const numberAffected = await Employee.updateOne(
+                    { _id: req.params.id },
+                    { $pull: { workexperience: req.params.id2 } })
+                if (numberAffected) {
+                    console.log(numberAffected);
+                    res.status(201).send(workexperience);
                 }
-            });
-            console.log("delete");
-            console.log(req.params.id);
+            }
+        } else {
+            console.log(err);
+            res.send("error");
         }
-    });
+
+        console.log("delete");
+        console.log(req.params.id);
+
+    } catch (err) {
+        res.status(500).send(err);
+    }
+
 });
 
 module.exports = {

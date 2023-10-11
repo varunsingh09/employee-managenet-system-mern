@@ -1,24 +1,32 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const State = require("./../models/state");
 const Country = require("./../models/country");
+const { City } = require("./../models/city");
 
 const { StateValidation } = require("./../schema/");
 
 
 const getState = asyncHandler(async (req, res) => {
-    State.find()
-        .populate("country citiesx")
-        .exec(function (err, country) {
-            res.send(country);
-        });
+    try {
+        const country = await State.find()
+            .populate("country cities")
+
+        res.status(200).send(country);
+
+    } catch (err) {
+        console.log("err", err);
+        res.status(500).send(err);
+    }
 });
 
 const saveState = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, StateValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+
+        const { error } = StateValidation.validate(req.body);
+
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newState;
 
@@ -27,41 +35,35 @@ const saveState = asyncHandler(async (req, res) => {
                 country: req.body.CountryID
             };
 
-            State.create(newState, function (err, state) {
-                if (err) {
-                    console.log(err);
-                    res.send("error");
-                } else {
-                    Country.findById(req.body.CountryID, function (err, country) {
-                        if (err) {
-                            console.log(err);
-                            res.send("err");
-                        } else {
-                            country.states.push(state);
-                            country.save(function (err, data) {
-                                if (err) {
-                                    console.log(err);
-                                    res.send("err");
-                                } else {
-                                    console.log(data);
-                                    res.send(state);
-                                }
-                            });
-                        }
-                    });
-                    console.log("new country Saved");
+            const state = await State.create(newState)
+            if (state) {
+                const country = await Country.findById(req.body.CountryID);
+                //console.log('country', country)
+                if (country) {
+                    country.states.push(state);
+                    const cntSave = await country.save();
+                    if (cntSave) {
+                        console.log(cntSave);
+                        res.status(201).send(state);
+                    }
                 }
-            });
-            console.log(req.body);
+            }
+            console.log("new country Saved");
         }
-    });
+        console.log(req.body);
+
+    } catch (err) {
+        console.log('err............', err);
+        res.status(500).send(err);
+    }
 });
 
 const updateState = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, StateValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = StateValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newState;
 
@@ -70,25 +72,24 @@ const updateState = asyncHandler(async (req, res) => {
                 country: req.body.CountryID
             };
 
-            State.findByIdAndUpdate(req.params.id, newState, function (err, state) {
-                if (err) {
-                    res.send("error");
-                } else {
-                    res.send(newState);
-                }
-            });
+            const state = await State.findByIdAndUpdate(req.params.id, newState);
+            if (state) {
+                res.status(201).send(newState);
+            }
+
         }
 
         console.log("put");
         console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const deleteState = asyncHandler(async (req, res) => {
-    State.findById(req.params.id, function (err, foundState) {
-        if (err) {
-            res.send(err);
-        } else {
+    try {
+        const foundState = await State.findById(req.params.id)
+        if (foundState) {
             // console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", foundCountry);
             if (!foundState.cities.length == 0) {
                 res
@@ -97,29 +98,25 @@ const deleteState = asyncHandler(async (req, res) => {
                         "First Delete All The cities in this state before deleting this state"
                     );
             } else {
-                State.findByIdAndRemove({ _id: req.params.id }, function (err, state) {
-                    if (!err) {
-                        console.log(" state deleted");
-                        console.log("country id---------", state.country[0]);
-                        Country.update(
-                            { _id: state.country[0] },
-                            { $pull: { states: state._id } },
-                            function (err, numberAffected) {
-                                console.log(numberAffected);
-                                res.send(state);
-                            }
-                        );
-                    } else {
-                        console.log(err);
-                        res.send("error");
+                const state = await State.findByIdAndRemove({ _id: req.params.id });
+                if (state) {
+                    console.log(" state deleted");
+                    console.log("country id---------", state.country[0]);
+                    const numberAffected = await Country.updateOne(
+                        { _id: state.country[0] },
+                        { $pull: { states: state._id } });
+                    if (numberAffected) {
+                        console.log(numberAffected);
+                        res.send(state);
                     }
-                });
+                }
             }
         }
-    });
-
-    console.log("delete");
-    console.log(req.params.id);
+        console.log("delete");
+        console.log(req.params.id);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 

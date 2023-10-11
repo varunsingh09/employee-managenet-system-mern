@@ -32,6 +32,7 @@ class SalaryForm extends Component {
   }
 
   render() {
+    console.log('this.state.employeeData.',this.state.employeeData)
     return (
       <div>
         <h2 id="role-form-title">Add Salary Details</h2>

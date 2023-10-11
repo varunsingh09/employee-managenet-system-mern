@@ -1,38 +1,35 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Employee = require("./../models/employee");
 const LeaveApplication = require("./../models/leaveapplication");
-const { LeaveapplicationValidation } = require("./../schema/");
+const { LeaveApplicationHrValidation } = require("./../schema/index");
 
 
 
 const getLeaveApplication = asyncHandler(async (req, res) => {
-    // var employee = {};
-    // {path: 'projects', populate: {path: 'portals'}}
-    LeaveApplication.find()
-        // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
-        .populate({
-            path: "employee"
-        })
-        // .select(" -role -position -department")
-        // .select("FirstName lastname middlename"
-        // )
-        .exec(function (err, leaveapplication) {
-            // console.log(filteredCompany);
-            if (err) {
-                console.log(err);
-                res.send("error");
-            } else {
-                res.send(leaveapplication);
-            }
-        });
+    try {
+        // var employee = {};
+        // {path: 'projects', populate: {path: 'portals'}}
+        const leaveapplication = await LeaveApplication.find()
+            // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
+            .populate({
+                path: "employee"
+            })
+            // .select(" -role -position -department")
+            .select("FirstName LastName MiddleName")
+
+        res.status(200).send(leaveapplication);
+    } catch (err) {
+        console.log('.....', err);
+        res.status(500).send(err);
+    }
 });
 
 const updateLeaveApplication = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, LeaveapplicationValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = LeaveApplicationHrValidation.validate(req.body);
+        if (error) {
+            console.log(req.body, 'err', error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newleaveapplication;
 
@@ -45,52 +42,43 @@ const updateLeaveApplication = asyncHandler(async (req, res) => {
                 employee: req.params.id
             };
 
-            LeaveApplication.findByIdAndUpdate(
+            const leaveapplication = await LeaveApplication.findByIdAndUpdate(
                 req.params.id,
-                newleaveapplication,
-                function (err, leaveapplication) {
-                    if (err) {
-                        res.send("error");
-                    } else {
-                        res.send(newleaveapplication);
-                    }
-                }
-            );
+                newleaveapplication);
+
+            if (leaveapplication) {
+                res.status(201).send(newleaveapplication);
+            }
         }
         console.log("put");
         console.log(req.body);
-    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 });
 
 const deleteLeaveApplication = asyncHandler(async (req, res) => {
-    Employee.findById({ _id: req.params.id }, function (err, employee) {
-        if (err) {
-            res.send("error");
-            console.log(err);
-        } else {
-            LeaveApplication.findByIdAndRemove({ _id: req.params.id2 }, function (
-                err,
-                leaveapplication
-            ) {
-                if (!err) {
-                    console.log("leaveapplication deleted");
-                    Employee.update(
-                        { _id: req.params.id },
-                        { $pull: { leaveapplication: req.params.id2 } },
-                        function (err, numberAffected) {
-                            console.log(numberAffected);
-                            res.send(leaveapplication);
-                        }
-                    );
-                } else {
-                    console.log(err);
-                    res.send("error");
+    try {
+        const employee = await Employee.findById({ _id: req.params.id });
+        if (employee) {
+            const leaveapplication = await LeaveApplication.findByIdAndRemove({ _id: req.params.id2 })
+            if (leaveapplication) {
+                console.log("leaveapplication deleted");
+                const emp = Employee.updateOne(
+                    { _id: req.params.id },
+                    { $pull: { leaveapplication: req.params.id2 } });
+                if (emp) {
+                    console.log(numberAffected);
+                    res.send(leaveapplication);
                 }
-            });
-            console.log("delete");
-            console.log(req.params.id);
+            }
         }
-    });
+        console.log("delete");
+        console.log(req.params.id);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 module.exports = {

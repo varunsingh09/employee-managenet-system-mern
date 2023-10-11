@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const  autoIncrement = require("mongoose-auto-increment");
+const autoIncrement = require("mongoose-auto-increment");
 
 const departmentSchema = new mongoose.Schema({
     DepartmentName: { type: String, required: true },
@@ -10,6 +10,7 @@ departmentSchema.plugin(autoIncrement.plugin, {
     field: "DepartmentID"
 });
 
+
 const Department = mongoose.model("Department", departmentSchema);
 
-module.exports=Department;
+module.exports = Department;

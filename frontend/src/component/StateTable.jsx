@@ -97,7 +97,7 @@ class StateTable extends Component {
         this.stateObj.map(data => {
           let temp = {
             data,
-            CountryName: data["country"][0]["CountryName"],
+            CountryName: data?.["country"]?.[0]?.["CountryName"],
             StateName:data["StateName"],
             
           };

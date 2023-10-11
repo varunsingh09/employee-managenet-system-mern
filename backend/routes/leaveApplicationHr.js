@@ -5,7 +5,7 @@ const { getLeaveApplication,
     updateLeaveApplication, deleteLeaveApplication } = require("./../controllers/leaveApplicationHrController");
 
 // Routes for work experience
-router.route("/:id").get(verifyHR, getLeaveApplication);
+router.route("/").get(verifyHR, getLeaveApplication);
 router.route("/:id").put(verifyHR, updateLeaveApplication);
 router.route("/:id/:id2").delete(verifyHR, deleteLeaveApplication);
 

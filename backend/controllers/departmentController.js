@@ -1,21 +1,24 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Department = require("./../models/department");
 const { DepartmentValidation } = require("./../schema/");
 
 const getDepartment = asyncHandler(async (req, res) => {
-  Department.find()
-    .populate("company")
-    .exec(function (err, employees) {
-      res.send(employees);
-    });
+  try {
+    const employees = await Department.find()
+      .populate("company")
+    res.status(200).send(employees);
+
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
 const saveDepartment = asyncHandler(async (req, res) => {
-  Joi.validate(req.body, DepartmentValidation, (err, result) => {
-    if (err) {
-      console.log(err);
-      res.status(400).send(err.details[0].message);
+  try {
+    const { error } = DepartmentValidation.validate(req.body);
+    if (error) {
+      console.log(error);
+      res.status(400).send(error.details[0].message);
     } else {
       let newDepartment;
 
@@ -24,25 +27,23 @@ const saveDepartment = asyncHandler(async (req, res) => {
         company: req.body.CompanyID
       };
 
-      Department.create(newDepartment, function (err, department) {
-        if (err) {
-          console.log(err);
-          res.send("error");
-        } else {
-          res.send(department);
-          console.log("new Role Saved");
-        }
-      });
+      const department = await Department.create(newDepartment);
+      res.status(201).send(department);
+      console.log("new Role Saved");
     }
     console.log(req.body);
-  });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
 });
 
 const updateDepartment = asyncHandler(async (req, res) => {
-  Joi.validate(req.body, DepartmentValidation, (err, result) => {
-    if (err) {
-      console.log(err);
-      res.status(400).send(err.details[0].message);
+  try {
+    const { error } = DepartmentValidation.validate(req.body);
+    if (error) {
+      console.log(error);
+      res.status(400).send(error.details[0].message);
     } else {
       let updateDepartment;
 
@@ -51,46 +52,28 @@ const updateDepartment = asyncHandler(async (req, res) => {
         company: req.body.CompanyID
       };
 
-      Department.findByIdAndUpdate(req.params.id, updateDepartment, function (
-        err,
-        department
-      ) {
-        if (err) {
-          res.send("error");
-        } else {
-          res.send(updateDepartment);
-        }
-      });
-    }
+      await Department.findByIdAndUpdate(req.params.id, updateDepartment);
 
-    console.log("put");
-    console.log(req.body);
-  });
+      res.status(201).send(updateDepartment);
+
+      console.log("put");
+      console.log(req.body);
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
 const deleteDepartment = asyncHandler(async (req, res) => {
-  Employee.find({ department: req.params.id }, function (err, d) {
-    if (err) {
-      console.log(err);
-      res.send(err);
-    } else {
-      if (d.length == 0) {
-        Department.findByIdAndRemove({ _id: req.params.id }, function (
-          err,
-          department
-        ) {
-          if (!err) {
-            console.log("department deleted");
-            res.send(department);
-            // });
-            console.log("new Department Saved");
-          } else {
-            console.log("error");
-            res.send("err");
-          }
-        });
-        console.log("delete");
-        console.log(req.params.id);
+  try {
+    const employee = await Employee.find({ department: req.params.id });
+
+    if (employee.length == 0) {
+      const department = await Department.findByIdAndRemove({ _id: req.params.id })
+      if (department) {
+        console.log("department deleted");
+        res.status(201).send(department);
+        console.log("new Department Saved");
       } else {
         res
           .status(403)
@@ -99,7 +82,9 @@ const deleteDepartment = asyncHandler(async (req, res) => {
           );
       }
     }
-  });
+  } catch (err) {
+    res.status(err).send(err);
+  }
 });
 
 module.exports = {

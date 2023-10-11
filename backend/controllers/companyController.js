@@ -1,35 +1,41 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Company = require("./../models/company");
 const { CompanyValidation } = require("./../schema/");
 
 
 const getCompany = asyncHandler(async (req, res) => {
-    // var employee = {};
-    // {path: 'projects', populate: {path: 'portals'}}
-    Company.find()
-        // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
-        .populate({
-            path: "city",
-            populate: {
-                path: "state",
-                model: "State",
+    try {
+        // var employee = {};
+        // {path: 'projects', populate: {path: 'portals'}}
+        const conpany = await Company.find()
+            // .populate({ path: "city", populate: { path: "state" } ,populate: { populate: { path: "country" } } })
+            .populate({
+                path: "city",
                 populate: {
-                    path: "country",
-                    model: "Country"
+                    path: "state",
+                    model: "State",
+                    populate: {
+                        path: "country",
+                        model: "Country"
+                    }
                 }
-            }
-        })
-        .exec(function (err, compnay) {
-            res.send(compnay);
-        });
+            });
+
+        res.status(200).send(conpany);
+
+    } catch (err) {
+        res.status(500).send(err);
+    }
+
 });
 
 const saveCompany = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, CompanyValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = CompanyValidation.validate(req.body);
+
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newCompany;
 
@@ -39,34 +45,33 @@ const saveCompany = asyncHandler(async (req, res) => {
                 city: req.body.CityID,
                 PostalCode: req.body.PostalCode,
                 Website: req.body.Website,
-                email: req.body.email,
+                Email: req.body.Email,
                 ContactPerson: req.body.ContactPerson,
-                contactno: req.body.contactno,
+                ContactNo: req.body.ContactNo,
                 FaxNo: req.body.FaxNo,
                 PanNo: req.body.PanNo,
                 GSTNo: req.body.GSTNo,
                 CINNo: req.body.CINNo
             };
 
-            Company.create(newCompany, function (err, company) {
-                if (err) {
-                    console.log(err);
-                    res.send("error");
-                } else {
-                    res.send(newCompany);
-                    console.log("new company Saved");
-                }
-            });
+            await Company.create(newCompany);
+            res.status(201).send(newCompany);
+            console.log("new company Saved");
+
             console.log(req.body);
         }
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const updateCompany = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, CompanyValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = CompanyValidation.validate(req.body);
+
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newCompany;
 
@@ -84,22 +89,15 @@ const updateCompany = asyncHandler(async (req, res) => {
                 GSTNo: req.body.GSTNo,
                 CINNo: req.body.CINNo
             };
-
-            Company.findByIdAndUpdate(req.params.id, newCompany, function (
-                err,
-                company
-            ) {
-                if (err) {
-                    res.send("error");
-                } else {
-                    res.send(newCompany);
-                }
-            });
+            await Company.findByIdAndUpdate(req.params.id, newCompany);
+            res.send(newCompany);
         }
 
         console.log("put");
         console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 

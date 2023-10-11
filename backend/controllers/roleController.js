@@ -1,22 +1,27 @@
 const asyncHandler = require("express-async-handler");
-const Joi = require("joi");
 const Role = require("./../models/role");
 const { RoleValidation } = require("./../schema/");
 
 
 const getRole = asyncHandler(async (req, res) => {
-    Role.find()
-        .populate("company")
-        .exec(function (err, role) {
-            res.send(role);
-        });
+    try {
+        const role = await Role.find()
+            .populate("company");
+        console.log('role', role)
+        res.status(200).send(role);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.details[0].message);
+    }
 });
 
 const saveRole = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, RoleValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+
+        const { error } = RoleValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let newRole;
 
@@ -25,26 +30,23 @@ const saveRole = asyncHandler(async (req, res) => {
                 company: req.body.CompanyID
             };
 
-            Role.create(newRole, function (err, role) {
-                if (err) {
-                    console.log(err);
-                    res.send("error");
-                } else {
-                    res.send(role);
-                    console.log("new Role Saved");
-                }
-            });
-            // }
-            console.log(req.body);
+            const role = Role.create(newRole);
+            res.status(201).send(role);
+            console.log("new Role Saved");
         }
-    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.details[0].message);
+    }
+
 });
 
 const updateRole = asyncHandler(async (req, res) => {
-    Joi.validate(req.body, RoleValidation, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err.details[0].message);
+    try {
+        const { error } = RoleValidation.validate(req.body);
+        if (error) {
+            console.log(error);
+            res.status(400).send(error.details[0].message);
         } else {
             let updateRole;
 
@@ -53,47 +55,35 @@ const updateRole = asyncHandler(async (req, res) => {
                 company: req.body.CompanyID
             };
 
-            Role.findByIdAndUpdate(req.params.id, updateRole, function (err, role) {
-                if (err) {
-                    res.send("error");
-                } else {
-                    res.send(updateRole);
-                }
-            });
+            const role = await Role.findByIdAndUpdate(req.params.id, updateRole);
+            res.status(201).send(updateRole);
         }
-
-        console.log("put");
-        console.log(req.body);
-    });
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 const deleteRole = asyncHandler(async (req, res) => {
-    Employee.find({ role: req.params.id }, function (err, r) {
-        if (err) {
-            console.log(err);
-            res.send(err);
-        } else {
-            if (r.length == 0) {
-                Role.findByIdAndRemove({ _id: req.params.id }, function (err, role) {
-                    if (!err) {
-                        console.log(" Role deleted");
-                        res.send(role);
-                    } else {
-                        console.log("error");
-                        res.send("err");
-                    }
-                });
-                console.log("delete");
-                console.log(req.params.id);
-            } else {
-                res
-                    .status(403)
-                    .send(
-                        "This role is associated with Employee so you can not delete this"
-                    );
+    try {
+
+        const employee = await Employee.findOne({ role: req.params.id });
+        if (employee.length == 0) {
+            const role = await Role.findByIdAndRemove({ _id: req.params.id });
+            if (!role) {
+                console.log(" Role deleted");
+                res.status(200).send(role);
             }
+            console.log("delete");
+        } else {
+            res.status(403)
+                .send(
+                    "This role is associated with Employee so you can not delete this"
+                );
         }
-    });
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 });
 
 module.exports = {

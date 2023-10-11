@@ -60,6 +60,7 @@ class EmployeeForm extends Component {
   }
 
   render() {
+    console.log('this?.state?.roleData', this?.state?.roleData)
     return (
       <div>
         <h2 id="role-form-title">Add Employee Details</h2>
@@ -94,7 +95,7 @@ class EmployeeForm extends Component {
             <Form.Group as={Row} >
               <Form.Label column sm={2}>
                 Account access
-    </Form.Label>
+              </Form.Label>
               <Col sm={10} className="form-input">
                 <Form.Control as="select" required>
                   <option value="1">Admin</option>
@@ -116,7 +117,7 @@ class EmployeeForm extends Component {
                   <option disabled selected>
                     Select your option
                   </option>
-                  {this.state.roleData.map((data, index) => (
+                  {this?.state?.roleData?.map((data, index) => (
                     <option key={index} value={data["_id"]}>{data["RoleName"]}</option>
                   ))}
                 </Form.Control>
@@ -125,7 +126,7 @@ class EmployeeForm extends Component {
             <Form.Group as={Row}>
               <Form.Label as="legend" column sm={2}>
                 Gender
-      </Form.Label>
+              </Form.Label>
               <Col sm={10}>
                 <Form.Check
                   inline

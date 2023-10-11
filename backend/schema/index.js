@@ -1,6 +1,13 @@
 
 const Joi = require("joi");
-
+const LoginValidation = Joi.object().keys({
+    email: Joi.string().email()
+        .max(200)
+        .required().label("Email can not leave empty"),
+    password: Joi.string()
+        .max(100)
+        .required().label("Password can not leave empty")
+});
 const EmployeeValidation = Joi.object().keys({
     RoleID: Joi.optional(),
     PositionID: Joi.optional(),
@@ -9,36 +16,37 @@ const EmployeeValidation = Joi.object().keys({
     FirstName: Joi.string()
         .max(200)
         .required(),
-    middlename: Joi.string()
+    MiddleName: Joi.string()
         .max(200)
         .required(),
-    lastname: Joi.string()
+    LastName: Joi.string()
         .max(200)
         .required(),
-    email: Joi.string()
+    Email: Joi.string()
         .max(200)
         .required(),
-    password: Joi.string()
+    Password: Joi.string()
         .max(100)
         .required(),
-    gender: Joi.string()
+    Gender: Joi.string()
         .max(100)
         .required(),
-    dob: Joi.date().required(),
-    dateofjoining: Joi.date().required(),
-    terminatedate: Joi.date().optional(),
+    DOB: Joi.date().required(),
+    DateOfJoining: Joi.date().required(),
+    TerminateDate: Joi.date().optional(),
     deleted: Joi.optional(),
     photo: Joi.optional(),
-    contactno: Joi.string()
+    ContactNo: Joi.string()
         .max(20)
         .required(),
-    employeecode: Joi.string()
+    EmployeeCode: Joi.string()
         .max(100)
         .required(),
-    account: Joi.number()
+    Account: Joi.number()
         .max(3)
         .required()
 });
+
 const EmployeeValidationUpdate = Joi.object().keys({
     RoleID: Joi.optional(),
     PositionID: Joi.optional(),
@@ -47,61 +55,61 @@ const EmployeeValidationUpdate = Joi.object().keys({
     FirstName: Joi.string()
         .max(200)
         .required(),
-    middlename: Joi.string()
+    MiddleName: Joi.string()
         .max(200)
         .required(),
-    lastname: Joi.string()
+    LastName: Joi.string()
         .max(200)
         .required(),
-    email: Joi.string()
+    Email: Joi.string()
         .max(200)
         .required(),
-    gender: Joi.string()
+    Gender: Joi.string()
         .max(100)
         .required(),
-    dob: Joi.date().required(),
-    dateofjoining: Joi.date().required(),
-    terminatedate: Joi.date().optional(),
+    DOB: Joi.date().required(),
+    DateOfJoining: Joi.date().required(),
+    TerminateDate: Joi.date().optional(),
     deleted: Joi.optional(),
     photo: Joi.optional(),
-    contactno: Joi.string()
+    ContactNo: Joi.string()
         .max(20)
         .required(),
-    employeecode: Joi.string()
+    EmployeeCode: Joi.string()
         .max(100)
         .required(),
-    account: Joi.number()
+    Account: Joi.number()
         .max(3)
         .required()
 });
 const EmployeePersonalInfoValidation = Joi.object().keys({
-    bloodgroup: Joi.string()
+    BloodGroup: Joi.string()
         .max(10)
         .required(),
-    dob: Joi.date().required(),
+    DOB: Joi.date().required(),
 
-    contactno: Joi.string()
+    ContactNo: Joi.string()
         .max(20)
         .required(),
-    email: Joi.string()
+    Email: Joi.string()
         .max(200)
         .required(),
-    emergencycontactno: Joi.string()
+    EmergencyContactNo: Joi.string()
         .max(20)
         .required(),
-    gender: Joi.string()
+    Gender: Joi.string()
         .max(100)
         .required(),
-    hobbies: Joi.string()
+    Hobbies: Joi.string()
         .max(1000)
         .required(),
-    pancardno: Joi.string()
+    PANcardNo: Joi.string()
         .max(50)
         .required(),
-    permanetaddress: Joi.string()
+    PermanetAddress: Joi.string()
         .max(200)
         .required(),
-    presentaddress: Joi.string()
+    PresentAddress: Joi.string()
         .max(200)
         .required()
 });
@@ -127,13 +135,13 @@ const CompanyValidation = Joi.object().keys({
     Website: Joi.string()
         .max(2000)
         .required(),
-    email: Joi.string()
+    Email: Joi.string()
         .max(1000)
         .required(),
     ContactPerson: Joi.string()
         .max(200)
         .required(),
-    contactno: Joi.string()
+    ContactNo: Joi.string()
         .max(20)
         .required(),
     FaxNo: Joi.string()
@@ -152,7 +160,7 @@ const CompanyValidation = Joi.object().keys({
 });
 const CountryValidation = Joi.object().keys({
     _id: Joi.optional(),
-    CountryID: Joi.optional(),
+    CountryId: Joi.optional(),
     CountryName: Joi.string()
         .max(200)
         .required()
@@ -184,7 +192,7 @@ const FamilyInfoValidation = Joi.object().keys({
     Relationship: Joi.string()
         .max(200)
         .required(),
-    dob: Joi.date().required(),
+    DOB: Joi.date().required(),
     Occupation: Joi.string()
         .max(100)
         .required()
@@ -258,7 +266,7 @@ const LeaveapplicationValidation = Joi.object().keys({
         .max(1)
         .required()
 });
-const LeaveapplicationHRValidation = Joi.object().keys({
+const LeaveApplicationHrValidation = Joi.object().keys({
     Status: Joi.number()
         .max(3)
         .required()
@@ -285,10 +293,10 @@ const SalaryValidation = Joi.object().keys({
     BankName: Joi.string()
         .max(200)
         .required(),
-    accountNo: Joi.string()
+    AccountNo: Joi.string()
         .max(200)
         .required(),
-    accountHolderName: Joi.string()
+    AccountHolderName: Joi.string()
         .max(200)
         .required(),
     IFSCcode: Joi.string()
@@ -307,8 +315,8 @@ const PositionValidation = Joi.object().keys({
 });
 
 module.exports = {
-    PositionValidation, SalaryValidation, PortalValidation, LeaveapplicationHRValidation, LeaveapplicationValidation,
+    PositionValidation, SalaryValidation, PortalValidation, LeaveApplicationHrValidation, LeaveapplicationValidation,
     ProjectValidation, RoleValidation, StateValidation, WorkexperienceValidation, FamilyInfoValidation, EducationValidation,
     DepartmentValidation, CountryValidation, CompanyValidation, CityValidation, EmployeePersonalInfoValidation,
-    EmployeeValidationUpdate, EmployeeValidation
+    EmployeeValidationUpdate, EmployeeValidation, LoginValidation
 }
